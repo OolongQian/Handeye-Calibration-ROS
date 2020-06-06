@@ -2,7 +2,8 @@
 
 
   <arg name="cameraIntrinsicInput"  default="$(find camera_transform_publisher)/camera_intrinsic_color_realsense2.xml" />
-  <arg name="cameraTopic"  default="/realsense2/rgb" />
+  <!-- <arg name="cameraTopic"  default="/realsense2/rgb" /> --> 
+  <arg name="cameraTopic" default="/realsense_sr300/ylx/rgb" />
 
   <node pkg="camera_transform_publisher" type="camera_transform_publisher" name="camera_transform_publisher" output="screen">
   <!-- handeye_calib_camodocal arg pass -->
