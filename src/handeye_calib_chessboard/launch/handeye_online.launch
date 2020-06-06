@@ -4,7 +4,7 @@
   <!-- AR Tag TF frame, the ros topic for the tf frame seen by the camera sensor,
        this need not be an actual AR tag, for example, it could be an optical tracker
        marker, or a position on the gripper you detect directly -->
-  <arg name="ARTagTF"           default="/ar_marker_0" />
+  <arg name="ARTagTF"           default="/ar_marker" />
 
   <!-- Camera Transform, the ros topic for the tf frame of your camera sensor -->
   <arg name="cameraTF"          default="/camera_link" />
