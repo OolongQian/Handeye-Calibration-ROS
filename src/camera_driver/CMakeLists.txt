@@ -15,6 +15,7 @@ endif()
 ############### dependencies ######################
 # 添加cmake模块
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
+<<<<<<< HEAD
 #PCL
 find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
@@ -53,12 +54,56 @@ message(STATUS "                     include path: ${realsense_INCLUDE_DIR}")
 message(STATUS "                     libraries: ${realsense2_LIBRARY}")
 
 ############### execute ######################
+=======
+
+#PCL
+find_package(PCL REQUIRED)
+add_definitions(${PCL_DEFINITIONS})
+#Opencv
+SET(OpenCV_DIR /usr/local/share/OpenCV)
+find_package(OpenCV 3 REQUIRED)
+# cv_bridge
+SET(cv_bridge_DIR /usr/local/share/cv_bridge)
+find_package(cv_bridge REQUIRED )
+#realsense
+find_package(realsense2 REQUIRED)
+#ros
+find_package(catkin REQUIRED COMPONENTS
+    cv_bridge
+    image_transport
+    message_generation
+    roscpp
+    rospy
+    sensor_msgs
+    std_msgs
+    tf
+    rgbd_srv
+)
+catkin_package()
+
+
+############### Include path ######################
+include_directories(
+    ${realsense2_INCLUDE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
+    ${cv_bridge_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+)
+
+## Link 3rdparty directory
+link_directories(${OpenCV_LIBRARY_DIR})
+link_directories(${PCL_LIBRARY_DIRS})
+
+############### executable ######################
+>>>>>>> upstream/master
 add_executable(realsense2_driver src/realsense2_driver.cpp)
 add_executable(realsense2_server src/realsense2_server.cpp)
 
 add_dependencies(realsense2_driver rgbd_srv_gencpp)
 add_dependencies(realsense2_server rgbd_srv_gencpp)
 
+<<<<<<< HEAD
 
 target_link_libraries(realsense2_driver
    ${catkin_LIBRARIES}
@@ -71,4 +116,19 @@ target_link_libraries(realsense2_server
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}
    ${PCL_LIBRARIES}
+=======
+target_link_libraries(realsense2_driver
+   ${OpenCV_LIBS}
+   ${PCL_LIBRARIES}
+   ${realsense2_LIBRARY}  
+   ${cv_bridge_LIBRARIES}
+   ${catkin_LIBRARIES}
+   
+)
+target_link_libraries(realsense2_server
+   ${OpenCV_LIBS}
+   ${PCL_LIBRARIES}
+   ${cv_bridge_LIBRARIES}
+   ${catkin_LIBRARIES}
+>>>>>>> upstream/master
 )
