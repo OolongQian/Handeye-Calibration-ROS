@@ -15,46 +15,6 @@ endif()
 ############### dependencies ######################
 # 添加cmake模块
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
-<<<<<<< HEAD
-#PCL
-find_package(PCL REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-#Opencv
-find_package(OpenCV 3 REQUIRED )
-include_directories(${OpenCV_INCLUDE_DIRS})
-link_directories(${OpenCV_LIBRARY_DIR})
-#ros
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  image_transport
-  roscpp
-  rospy
-  sensor_msgs
-  std_msgs
-  rgbd_srv
-  tf
-)
-catkin_package()
-include_directories(${catkin_INCLUDE_DIRS})
-
-#realsense
-find_package(realsense2 REQUIRED)
-include_directories(${realsense_INCLUDE_DIR})
-
-
-message(STATUS "########################  OpenCV library status ###############################" )
-message(STATUS "                     version: ${OpenCV_VERSION}")
-message(STATUS "                     include path: ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "                     libraries: ${OpenCV_LIBS}")
-
-message(STATUS "########################  realsense2 library status ###############################" )
-message(STATUS "                     version: ${realsense_VERSION_MAJOR}")
-message(STATUS "                     include path: ${realsense_INCLUDE_DIR}")
-message(STATUS "                     libraries: ${realsense2_LIBRARY}")
-
-############### execute ######################
-=======
 
 #PCL
 find_package(PCL REQUIRED)
@@ -96,27 +56,12 @@ link_directories(${OpenCV_LIBRARY_DIR})
 link_directories(${PCL_LIBRARY_DIRS})
 
 ############### executable ######################
->>>>>>> upstream/master
 add_executable(realsense2_driver src/realsense2_driver.cpp)
 add_executable(realsense2_server src/realsense2_server.cpp)
 
 add_dependencies(realsense2_driver rgbd_srv_gencpp)
 add_dependencies(realsense2_server rgbd_srv_gencpp)
 
-<<<<<<< HEAD
-
-target_link_libraries(realsense2_driver
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBS}
-   ${PCL_LIBRARIES}
-   ${realsense2_LIBRARY}  
-   
-)
-target_link_libraries(realsense2_server
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBS}
-   ${PCL_LIBRARIES}
-=======
 target_link_libraries(realsense2_driver
    ${OpenCV_LIBS}
    ${PCL_LIBRARIES}
@@ -130,5 +75,4 @@ target_link_libraries(realsense2_server
    ${PCL_LIBRARIES}
    ${cv_bridge_LIBRARIES}
    ${catkin_LIBRARIES}
->>>>>>> upstream/master
 )

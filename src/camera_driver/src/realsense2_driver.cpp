@@ -5,10 +5,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/PointCloud2.h>
-<<<<<<< HEAD
-=======
 #include <sensor_msgs/CameraInfo.h>
->>>>>>> upstream/master
 
 #include <tf/tfMessage.h>
 #include <tf/transform_broadcaster.h>
@@ -35,27 +32,6 @@ using namespace std;
 
 typedef pcl::PointCloud<pcl::PointXYZRGBA> PointCloud;
 
-<<<<<<< HEAD
-// Window size and frame rate
-int const OUTPUT_WIDTH      = 640;
-int const OUTPUT_HEIGHT     = 480;
-int const FRAME_RATE        = 30;
-
-float get_depth_scale(rs2::device dev);
-
-rs2_stream find_stream_to_align(const std::vector<rs2::stream_profile>& streams);
-
-bool profile_changed(const std::vector<rs2::stream_profile>& current,
-                     const std::vector<rs2::stream_profile>& prev);
-
-
-
-//########################################################################################
-
-int main(int argc, char** argv)
-{
-    ros::init(argc, argv, "realsense_driver");
-=======
 // frame rate
 int const FRAME_RATE = 30;
 
@@ -84,7 +60,6 @@ int main(int argc, char **argv)
     n.param("resWidth", reslu_width, 640);
     n.param("resHeight", reslu_height, 480);
 
->>>>>>> upstream/master
     ros::NodeHandle nh;
     ros::Rate loop_rate(FRAME_RATE);
 
@@ -92,19 +67,12 @@ int main(int argc, char **argv)
     image_transport::Publisher image_pub_color;
     image_transport::Publisher image_pub_depth;
     ros::Publisher cloud_pub;
-<<<<<<< HEAD
-
-    image_pub_color = it.advertise("/realsense_sr300/ylx/rgb", 1);
-    image_pub_depth = it.advertise("/realsense_sr300/ylx/depth", 1);
-    cloud_pub       = nh.advertise<PointCloud>("/realsense_sr300/ylx/cloud",1);
-=======
     ros::Publisher camera_info_pub;
 
     image_pub_color = it.advertise("/realsense/rgb", 1);
     image_pub_depth = it.advertise("/realsense/depth", 1);
     cloud_pub = nh.advertise<PointCloud>("/realsense/cloud", 1);
     camera_info_pub = nh.advertise<sensor_msgs::CameraInfo>("/realsense/camera_info", 1);
->>>>>>> upstream/master
 
     // Create a pipeline to easily configure and start the camera
     rs2::pipeline pipe;
@@ -113,13 +81,8 @@ int main(int argc, char **argv)
     //The start function returns the pipeline profile which the pipeline used to start the device
 
     rs2::config config;
-<<<<<<< HEAD
-    config.enable_stream(RS2_STREAM_COLOR, OUTPUT_WIDTH, OUTPUT_HEIGHT, RS2_FORMAT_BGR8, FRAME_RATE);
-    config.enable_stream(RS2_STREAM_DEPTH, OUTPUT_WIDTH, OUTPUT_HEIGHT, RS2_FORMAT_ANY, FRAME_RATE);
-=======
     config.enable_stream(RS2_STREAM_COLOR, reslu_width, reslu_height, RS2_FORMAT_BGR8, FRAME_RATE);
     config.enable_stream(RS2_STREAM_DEPTH, reslu_width, reslu_height, RS2_FORMAT_ANY, FRAME_RATE);
->>>>>>> upstream/master
     rs2::pipeline_profile profile = pipe.start(config);
     //   rs2::pipeline_profile profile = pipe.start(); // this is the default config, cause some delay.
     rs2_intrinsics intrinsics;
@@ -133,22 +96,13 @@ int main(int argc, char **argv)
     // For example if we have a depth pixel with a value of 2 and the depth scale units are 0.5
     // then that pixel is 2 X 0.5 = 1 meter away from the camera.
 
-<<<<<<< HEAD
-    const std::vector<rs2::stream_profile>& streams = profile.get_streams();
-=======
     const std::vector<rs2::stream_profile> &streams = profile.get_streams();
->>>>>>> upstream/master
     for (rs2::stream_profile sp : streams)
     {
         rs2_stream profile_stream = sp.stream_type();
 
         if (profile_stream == RS2_STREAM_COLOR)
         {
-<<<<<<< HEAD
-            
-=======
-
->>>>>>> upstream/master
             rs2::video_stream_profile vsp(sp);
             intrinsics = vsp.get_intrinsics();
             cout << "\n\n";
@@ -157,25 +111,6 @@ int main(int argc, char **argv)
             cout << "height:     " << intrinsics.height << endl;
             cout << "px:         " << intrinsics.ppx << endl;
             cout << "py:         " << intrinsics.ppy << endl;
-<<<<<<< HEAD
-            cout << "fx:         " << intrinsics.fx  << endl;
-            cout << "fy:         " << intrinsics.fy  << endl;
-            cout << "disCoeff:   ";
-            cout << intrinsics.coeffs[0] << " "
-                                         << intrinsics.coeffs[1] << " "
-                                         << intrinsics.coeffs[2] << " "
-                                         << intrinsics.coeffs[3] << " "
-                                         << intrinsics.coeffs[4] << " " << endl;
-            cout << "########### camera_intrinsics ###########" << "\n\n";
-        }
-
-    }
-
-    //Pipeline could choose a device that does not have a color stream
-    //If there is no color stream, choose to align depth to another stream
-    rs2_stream align_to = find_stream_to_align(profile.get_streams());  //color stream
-    
-=======
             cout << "fx:         " << intrinsics.fx << endl;
             cout << "fy:         " << intrinsics.fy << endl;
             cout << "disCoeff:   ";
@@ -203,7 +138,6 @@ int main(int argc, char **argv)
     //If there is no color stream, choose to align depth to another stream
     rs2_stream align_to = find_stream_to_align(profile.get_streams()); //color stream
 
->>>>>>> upstream/master
     // Create a rs2::align object.
     // rs2::align allows us to perform alignment of depth frames to others frames
     // The "align_to" is the stream type to which we plan to align depth frames.
@@ -211,28 +145,6 @@ int main(int argc, char **argv)
 
     cout << "Depth Scale:          " << depth_scale << endl;
     cout << "Frame Rate:           " << FRAME_RATE << " frame/sec" << endl;
-<<<<<<< HEAD
-    cout << "RGB Encoding:         " << "RGB8" << endl;
-    cout << "Depth Encoding:       " << "TYPE_32FC1 (meter)" << "\n\n";
-    cout << "Camera is ready, Everyone is happy NOW !" << endl;
-
-
-
-    // setup a unRotated unTranslated Transformation between "camera_joint" and "camera_optical_frame" 
-    tf::TransformBroadcaster br;
-    tf::Transform transform_b;
-    transform_b.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-    transform_b.setRotation( tf::Quaternion(0, 0, 0, 1) );
-    //initiate tf
-    br.sendTransform(tf::StampedTransform(transform_b, ros::Time::now(),
-                                          "camera_joint", "camera_optical_frame"));
-
-
-    PointCloud::Ptr cloud_scene (new PointCloud);                                     
-
-
-    while(ros::ok()) {
-=======
     cout << "RGB Encoding:         "
          << "RGB8" << endl;
     cout << "Depth Encoding:       "
@@ -264,7 +176,6 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
 
->>>>>>> upstream/master
         rs2::frameset frameset = pipe.wait_for_frames();
 
         if (profile_changed(pipe.get_active_profile().get_streams(), profile.get_streams()))
@@ -290,42 +201,25 @@ int main(int argc, char **argv)
             continue;
         }
 
-<<<<<<< HEAD
-        uint16_t* p_depth_frame = reinterpret_cast<uint16_t*>(const_cast<void*>(aligned_depth_frame.get_data()));
-        uint8_t* p_color_frame = reinterpret_cast<uint8_t*>(const_cast<void*>(color_frame.get_data()));
-=======
         uint16_t *p_depth_frame = reinterpret_cast<uint16_t *>(const_cast<void *>(aligned_depth_frame.get_data()));
         uint8_t *p_color_frame = reinterpret_cast<uint8_t *>(const_cast<void *>(color_frame.get_data()));
->>>>>>> upstream/master
         // uint8_t* p_color_depth = reinterpret_cast<uint8_t*>(const_cast<void*>(color_depth.get_data()));
         // const uint16_t* p_depth_frame = reinterpret_cast<const uint16_t*>(aligned_depth_frame.get_data());
 
         cv::Mat bgr(color_frame.get_height(), color_frame.get_width(), CV_8UC3, p_color_frame);
         cv::Mat rgb;
-<<<<<<< HEAD
-        cvtColor( bgr, rgb, cv::COLOR_BGR2RGB );
-=======
         cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
->>>>>>> upstream/master
         // cv::Mat rgb_depth(color_frame.get_height(), color_frame.get_width(), CV_8UC3, p_color_depth);
 
         cv::Mat depth16(aligned_depth_frame.get_height(),
                         aligned_depth_frame.get_width(),
                         CV_16U,
                         p_depth_frame);
-<<<<<<< HEAD
-    
-        int width = color_frame.get_width();
-        int height = color_frame.get_height();
-        cv::Mat depth32f(OUTPUT_HEIGHT,OUTPUT_WIDTH,CV_32F);
-        #pragma omp parallel for schedule(dynamic) //Using OpenMP to try to parallelise the loop
-=======
 
         int width = color_frame.get_width();
         int height = color_frame.get_height();
         cv::Mat depth32f(reslu_height, reslu_width, CV_32F);
 #pragma omp parallel for schedule(dynamic) //Using OpenMP to try to parallelise the loop
->>>>>>> upstream/master
         for (int y = 0; y < height; y++)
         {
             auto depth_pixel_index = y * width;
@@ -339,50 +233,6 @@ int main(int argc, char **argv)
             }
         }
 
-<<<<<<< HEAD
-		/**
-        cv::imshow("rgb", rgb);
-        cv::imshow("depth",depth32f);
-        cv::waitKey(1);
-		*/
-
-        cloud_scene->clear();
-        for (int r = 0; r < depth32f.rows; r++) {
-			for (int c = 0; c < depth32f.cols; c++) {
-				pcl::PointXYZRGBA p;
-				if (!(depth32f.ptr<float>(r)[c] > 0.f)) 
-				{
-					continue;   // no depth at current point
-				}
-				
-				if ((depth32f.ptr<float>(r)[c] >= 1.f))   // don't want depth large than 1 meter
-				{
-					continue;
-				}
-				float scene_z = float(depth32f.ptr<float>(r)[c]);  // z direction
-				float scene_y = (r - intrinsics.ppy) * scene_z / intrinsics.fy;   // pixel coord to camera coord
-				float scene_x = (c - intrinsics.ppx) * scene_z / intrinsics.fx;
-				
-				p.x = scene_x;
-				p.y = scene_y;
-				p.z = scene_z;
-				p.r = rgb.ptr<uchar>(r)[c * 3];
-				p.g = rgb.ptr<uchar>(r)[c * 3 + 1];
-				p.b = rgb.ptr<uchar>(r)[c * 3 + 2];
-				cloud_scene->points.push_back(p);	
-				
-			}
-		}
-
-        cloud_scene->height = 1;
-		cloud_scene->width = cloud_scene->points.size();
-		cloud_scene->resize(cloud_scene->height * cloud_scene->width);
-
-
-        std_msgs::Header header;
-        header.stamp = ros::Time::now();
-        header.frame_id = "camera_joint";
-=======
         cloud_scene->clear();
         for (int r = 0; r < depth32f.rows; r++)
         {
@@ -420,7 +270,6 @@ int main(int argc, char **argv)
         std_msgs::Header header;
         header.stamp = ros::Time::now();
         header.frame_id = "camera_link";
->>>>>>> upstream/master
 
         cv_bridge::CvImage cv_color;
         cv_color.header = header;
@@ -432,23 +281,6 @@ int main(int argc, char **argv)
         cv_depth.image = depth32f;
         cv_depth.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
 
-<<<<<<< HEAD
-        cloud_scene->header.stamp = ros::Time::now().toSec();
-        cloud_scene->header.frame_id = "camera_joint";
-        cloud_pub.publish(cloud_scene);
-
-        image_pub_color.publish(cv_color.toImageMsg());
-        image_pub_depth.publish(cv_depth.toImageMsg());
-
-        br.sendTransform(tf::StampedTransform(transform_b, 
-                                              ros::Time::now(), 
-                                              "camera_joint", 
-                                              "camera_optical_frame"));
-
-        ros::spinOnce();
-        loop_rate.sleep();
-
-=======
         // cloud_scene->header.stamp = ros::Time::now().toSec();
         cloud_scene->header.frame_id = header.frame_id;
 
@@ -467,25 +299,14 @@ int main(int argc, char **argv)
 
         ros::spinOnce();
         loop_rate.sleep();
->>>>>>> upstream/master
     }
     return 0;
 }
 
-<<<<<<< HEAD
-//##################### helper function ###################################################
-
-
-float get_depth_scale(rs2::device dev)
-{
-    // Go over the device's sensors
-    for (rs2::sensor& sensor : dev.query_sensors())
-=======
 float get_depth_scale(rs2::device dev)
 {
     // Go over the device's sensors
     for (rs2::sensor &sensor : dev.query_sensors())
->>>>>>> upstream/master
     {
         // Check if the sensor if a depth sensor
         if (rs2::depth_sensor dpt = sensor.as<rs2::depth_sensor>())
@@ -496,12 +317,7 @@ float get_depth_scale(rs2::device dev)
     throw std::runtime_error("Device does not have a depth sensor");
 }
 
-<<<<<<< HEAD
-
-rs2_stream find_stream_to_align(const std::vector<rs2::stream_profile>& streams)
-=======
 rs2_stream find_stream_to_align(const std::vector<rs2::stream_profile> &streams)
->>>>>>> upstream/master
 {
     //Given a vector of streams, we try to find a depth stream and another stream to align depth with.
     //We prioritize color streams to make the view look better.
@@ -514,11 +330,7 @@ rs2_stream find_stream_to_align(const std::vector<rs2::stream_profile> &streams)
         rs2_stream profile_stream = sp.stream_type();
         if (profile_stream != RS2_STREAM_DEPTH)
         {
-<<<<<<< HEAD
-            if (!color_stream_found)         //Prefer color
-=======
             if (!color_stream_found) //Prefer color
->>>>>>> upstream/master
                 align_to = profile_stream;
 
             if (profile_stream == RS2_STREAM_COLOR)
@@ -532,11 +344,7 @@ rs2_stream find_stream_to_align(const std::vector<rs2::stream_profile> &streams)
         }
     }
 
-<<<<<<< HEAD
-    if(!depth_stream_found)
-=======
     if (!depth_stream_found)
->>>>>>> upstream/master
         throw std::runtime_error("No Depth stream available");
 
     if (align_to == RS2_STREAM_ANY)
@@ -545,23 +353,12 @@ rs2_stream find_stream_to_align(const std::vector<rs2::stream_profile> &streams)
     return align_to;
 }
 
-<<<<<<< HEAD
-
-
-bool profile_changed(const std::vector<rs2::stream_profile>& current, const std::vector<rs2::stream_profile>& prev)
-{
-    for (auto&& sp : prev)
-    {
-        //If previous profile is in current (maybe just added another)
-        auto itr = std::find_if(std::begin(current), std::end(current), [&sp](const rs2::stream_profile& current_sp) { return sp.unique_id() == current_sp.unique_id(); });
-=======
 bool profile_changed(const std::vector<rs2::stream_profile> &current, const std::vector<rs2::stream_profile> &prev)
 {
     for (auto &&sp : prev)
     {
         //If previous profile is in current (maybe just added another)
         auto itr = std::find_if(std::begin(current), std::end(current), [&sp](const rs2::stream_profile &current_sp) { return sp.unique_id() == current_sp.unique_id(); });
->>>>>>> upstream/master
         if (itr == std::end(current)) //If it previous stream wasn't found in current
         {
             return true;
@@ -570,9 +367,6 @@ bool profile_changed(const std::vector<rs2::stream_profile> &current, const std:
     return false;
 }
 
-<<<<<<< HEAD
-
-=======
 void deprojectPixelToPoint(Eigen::Vector3f &point, int pixel_coloum, int pixel_row, float depth, cv::Mat &cameraMatrix, cv::Mat &distCoeffs)
 {
     float m_px, m_py, m_fx, m_fy, coeffs[5];
@@ -599,4 +393,3 @@ void deprojectPixelToPoint(Eigen::Vector3f &point, int pixel_coloum, int pixel_r
     point(1) = depth * y;
     point(2) = depth;
 }
->>>>>>> upstream/master
